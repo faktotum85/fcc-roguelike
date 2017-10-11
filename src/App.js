@@ -4,60 +4,84 @@ class App extends Component {
   constructor() {
     super();
 
-
-
     this.state = {
-      grid:
+      grid: drawMap(generateRooms(20, 30, 5, 5))
     }
+  }
+
+  componentDidMount() {
+    window.addEventListener('keyup', this.handleKeys);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keyup', this.handleKeys);
   }
 
   render() {
     return (
       <div className="App">
+        {this.state.grid.map((row, rowIndex) => {
+          return (
+            <div key={rowIndex} className="row">
+            {row.map((col, colIndex) => {
+              if (col === ' ') {
+                return <div key={colIndex} className="cell space"></div>
+              } else {
+                return <div key={colIndex} className="cell wall"></div>
+              }
+            })}
+            </div>
+          )
+        })}
       </div>
     );
+  }
+
+  handleKeys(e) {
+    console.log(e.code);
   }
 }
 
 function generateRooms(height, width, minSize, iterations) {
-  var splitVertically = true;
-  var rooms = [
+  let splitVertically;
+  let rooms = [
     {
-      startingPoint: [0, 0],
-      height: height,
-      width: width
+      t: 0,
+      l: 0,
+      r: width - 1,
+      b: height - 1
     }
   ];
 
-  var iterationCount = 0;
+  let iterationCount = 0;
 
   while (iterationCount < iterations) { // iteratively split existing rooms
-    var newRooms = [];
-    for (var i = 0; i < rooms.length; i++) {
-      var room = rooms[i];
+    let newRooms = [];
+    for (let i = 0; i < rooms.length; i++) {
+      const room = rooms[i];
       splitVertically = randBool(); // splitting direction
       // check minimum height / width
-      var space = splitVertically ? room.width : room.height;
-      if (space < (minSize * 2 + 1)) { // can't split without violating minSize;
+      const space = splitVertically ? room.r - room.l : room.b - room.t;
+      if (space < (minSize * 2)) { // can't split without violating minSize;
         newRooms.push(room);
         continue;
       }
       // determine where the wall will go
-      var split = splitVertically ?
-                  getRandomIntInclusive(room.startingPoint[1] + minSize, room.startingPoint[1] + room.width - minSize - 1) : // split width
-                  getRandomIntInclusive(room.startingPoint[0] + minSize, room.startingPoint[0] + room.height - minSize - 1)  // split height
+      const split = splitVertically ?
+                  getRandomIntInclusive(room.l + minSize, room.r - minSize) : // split width
+                  getRandomIntInclusive(room.t + minSize, room.b - minSize)  // split height
       // create new rooms
-      var roomA = {
-        startingPoint: room.startingPoint,
-        height: splitVertically ? room.height : (split - room.startingPoint[0]),
-        width: splitVertically ? (split - room.startingPoint[1]) : room.width,
+      const roomA = {
+        t: room.t,
+        l: room.l,
+        b: splitVertically ? room.b : split - 1,
+        r: splitVertically ? split - 1: room.r
       };
-      var roomB = {
-        startingPoint: splitVertically ?
-          [room.startingPoint[0], split + 1] :
-          [split + 1, room.startingPoint[1]],
-        height: splitVertically ? room.height : (room.startingPoint[0] + room.height - split - 1),
-        width: splitVertically ? (room.startingPoint[1] + room.width - split - 1) : room.width
+      const roomB = {
+        t: splitVertically ? room.t : split + 1,
+        l: splitVertically ? split + 1 : room.l,
+        b: room.b,
+        r: room.r
       };
       // add to new rooms
       newRooms.push(roomA);
@@ -83,32 +107,23 @@ function getRandomIntInclusive(min, max) {
 }
 
 function drawMap(dungeon) {
-  var rooms = dungeon.rooms;
-  var height = dungeon.height;
-  var width = dungeon.width;
-  // print map to console
-  var map = [];
-  for (var x=0; x < height; x++) {
-    var row = [];
-    for (var y=0; y < width; y++) {
-      row.push('*');
-    }
-    map.push(row);
-  }
+  let {rooms, height, width} = dungeon;
+  // set up map
+  let map = [];
+  for (let r=0; r < height; r++) {
+    map.push('*'.repeat(width).split(''))
+  };
 
+  // fill out map
   rooms.forEach(function (room) {
-    for (var rh = room.startingPoint[0]; rh < (room.startingPoint[0] + room.height); rh++) {
-      for (var rw = room.startingPoint[1]; rw < (room.startingPoint[1] + room.width); rw++) {
-        map[rh][rw] = ' ';
+    for (let x = room.t; x <= room.b; x++) {
+      for (let y = room.l; y <= room.r; y++) {
+        map[x][y] = ' ';
       }
     }
   });
-  var out = '*'.repeat(width + 2);
-  map.forEach(function(row) {
-    out += '\n*' + row.join('') + '*';
-  });
-  out += '\n' + '*'.repeat(width + 2);
-  console.log(out);
+
+  return map;
 }
 
 export default App;

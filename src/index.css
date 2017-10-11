@@ -3,3 +3,20 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+}
+
+.cell.wall {
+  background: black;
+}
+
+.cell.space {
+  background: gray;
+}

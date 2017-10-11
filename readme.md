@@ -1,7 +1,13 @@
 # TODO
-- refactor room abstraction to t, b, l, r
-- use ES6
-- move into constructor and state
-- render onto page
+- grid:
+  - center on page and add border
+  - add doorways
+  - add player
+  - add enemies, power ups, levels, etc.
+
+- check responsiveness and adjust
+
 - add event listeners to update state
-- add enemies, power ups, levels, etc.
+
+## Bonus
+- add controls for touch devices
