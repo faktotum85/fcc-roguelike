@@ -20,3 +20,23 @@ body {
 .cell.space {
   background: gray;
 }
+
+.cell.player {
+  background: blue;
+}
+
+.cell.health {
+  background: green;
+}
+
+.cell.weapon {
+  background: yellow;
+}
+
+.cell.enemy {
+  background: red;
+}
+
+.cell.boss {
+  background: purple;
+}
