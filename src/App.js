@@ -38,33 +38,66 @@ class App extends Component {
   }
 
   render() {
-    return (
-      <div className="App">
-        {this.state.map.map((row, rowIndex) => {
-          return (
-            <div key={rowIndex} className="row">
-            {row.map((cell, colIndex) => {
-              if (cell === ' ') {
-                return <div key={colIndex} className="cell space"></div>
-              } else if (cell === 'P') {
-                return <div key={colIndex} className="cell player"></div>
-              } else if (cell === 'H') {
-                return <div key={colIndex} className="cell health"></div>
-              } else if (cell === 'W') {
-                return <div key={colIndex} className="cell weapon"></div>
-              } else if (cell === 'E') {
-                return <div key={colIndex} className="cell enemy"></div>
-              } else if (cell === 'B') {
-                return <div key={colIndex} className="cell boss"></div>
-              } else {
-                return <div key={colIndex} className="cell wall"></div>
-              }
-            })}
-            </div>
-          )
-        })}
+    const playerRow = this.state.playerPos.y;
+    const playerCol = this.state.playerPos.x;
+    const rows = range(playerRow - 4, playerRow + 5)
+    const cols = range(playerCol - 4, playerCol + 5);
+    const {height, width} = this.props;
+
+    return(
+      <div className="game">
+        <div className="board">
+          {rows.map(row => {
+            return (
+              <div key={row} className="row">
+                {cols.map(col => {
+                  if (row < 0 || row > height - 1 || col < 0 || col > width - 1) {
+                    return <div key={col} className="cell wall"></div>
+                  }
+                  const cell = this.state.map[row][col];
+                  if (cell === ' ') {
+                    return <div key={col} className="cell space"></div>
+                  } else if (cell === 'P') {
+                    return <div key={col} className="cell player"></div>
+                  } else if (cell === 'H') {
+                    return <div key={col} className="cell health"></div>
+                  } else if (cell === 'W') {
+                    return <div key={col} className="cell weapon"></div>
+                  } else if (cell === 'E') {
+                    return <div key={col} className="cell enemy"></div>
+                  } else if (cell === 'B') {
+                    return <div key={col} className="cell boss"></div>
+                  } else {
+                    return <div key={col} className="cell wall"></div>
+                  }
+                })}
+              </div>
+            )
+          })}
+        </div>
+        <div className="stats">
+          <div className="statWrapper">
+            <i className="fa fa-heart" aria-hidden="true"></i>
+            <div className="stat">{Math.round(this.state.health)}</div>
+          </div>
+          <div className="statWrapper">
+            <i className="fa fa-bolt" aria-hidden="true"></i>
+            <div className="stat">{this.state.attack}</div>
+          </div>
+          <div className="statWrapper">
+            <i className="fa fa-lightbulb-o" aria-hidden="true"></i>
+            <div className="stat">{this.state.xp}</div>
+          </div>
+          <div className="statWrapper">
+            <i className="fa fa-plus-circle" aria-hidden="true"></i>
+            <div className="stat">{this.state.level}</div>
+          </div>
+          <div className="gameState">
+            {this.state.gameState === 'play' ? 'Stage ' + this.state.stage : this.state.gameState}
+          </div>
+        </div>
       </div>
-    );
+    )
   }
 
   handleKeys(e) {
@@ -111,7 +144,7 @@ class App extends Component {
         const fightWon = this.fight(nextPos);
         if (fightWon) {
           if (targetType === 'B') {
-            this.setState({gameState: 'won'});
+            this.setState({gameState: 'You Win!'});
             window.removeEventListener('keyup', this.handleKeys);
           }
           this.move(nextPos);
@@ -119,11 +152,11 @@ class App extends Component {
       }
     }
     // check victory conditions
-    if (this.state.enemyCount === 0 && this.state.gameState !== 'won') {
+    if (this.state.enemyCount === 0 && this.state.gameState !== 'You Win!') {
       this.levelUp();
     }
     if (this.state.health <= 0) {
-      this.setState({gameState: 'lost'});
+      this.setState({gameState: 'You Lose!'});
       window.removeEventListener('keyup', this.handleKeys);
     }
   }
@@ -190,5 +223,10 @@ class App extends Component {
     });
   }
 }
+
+function range (start, end) {
+  return Array.from({length: (end - start)}, (v, k) => k + start);
+}
+
 
 export default App;

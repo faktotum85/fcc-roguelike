@@ -138,8 +138,8 @@ function placeCreatures(dungeon, numEnemies, stage) {
   if (stage === 4) { // final stage, add boss
     const bossPos = placeItem(dungeon, 'B', 1)[0];
     dungeon.enemies[bossPos.y + '-' + bossPos.x] = {
-      health: 300,
-      level: 6
+      health: 350,
+      level: 7
     }
   }
 }
